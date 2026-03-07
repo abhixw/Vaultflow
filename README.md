@@ -16,6 +16,38 @@ The project demonstrates best practices in backend architecture, including modul
 ### My Tasks Dashboard
 ![Dashboard](./images/dashboard_view.png)
 
+### System Architecture
+
+```mermaid
+graph TD
+    subgraph Client ["Client (Browser)"]
+        UI["React SPA (Vite)"]
+        AC["AuthContext (JWT Storage)"]
+    end
+
+    subgraph API ["Backend API (FastAPI)"]
+        direction LR
+        Routes["Routes (Auth, Todo, Admin)"]
+        Deps["Dependencies (Auth / RBAC)"]
+        Services["Services (Business Logic)"]
+        Core["Core (Security / JWT)"]
+        Models["Models (SQLAlchemy)"]
+        
+        Routes --> Deps
+        Deps --> Services
+        Services --> Core
+        Services --> Models
+    end
+
+    subgraph DB ["Database"]
+        MySQL[("MySQL Database")]
+    end
+
+    UI <--> AC
+    UI -- "Axios Requests (Bearer Token)" --> Routes
+    Models <--> MySQL
+```
+
 ---
 
 ## Tech Stack

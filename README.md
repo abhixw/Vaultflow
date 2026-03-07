@@ -157,7 +157,7 @@ Create MySQL database:
 ```sql
 CREATE DATABASE secure_task_api;
 ```
-Update the connection string inside `backend/config.py`.
+Update the connection string inside `backend/.env`.
 
 Example:
 `DATABASE_URL=mysql+pymysql://username:password@localhost/secure_task_api`

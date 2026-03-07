@@ -1,43 +1,238 @@
-# Vaultflow - Task Management System
+# VaultFlow API
 
-A secure, scalable Task Management API built with FastAPI and React.
+## Overview
 
-## Features
-- **Authentication**: JWT-based login and registration with password hashing.
-- **RBAC**: Role-Based Access Control (Admin vs User).
-- **CRUD Operations**: Manage todos with strict PUT semantics and ownership validation.
-- **Scalability**: Modular project structure for easy extension.
-- **Documentation**: Interactive API docs via Swagger.
+VaultFlow API is a scalable backend system built using **FastAPI** and **MySQL**. It provides secure user authentication using **JWT tokens**, role-based access control (User/Admin), and CRUD operations for managing todos.
 
-## Technology Stack
-- **Backend**: FastAPI, SQLAlchemy, MySQL (PyMySQL), PyJWT.
-- **Frontend**: React.js, Vite, Axios, React Router.
-
-## Setup Instructions
-
-### Backend Setup
-1. Navigate to `/backend`.
-2. Install dependencies: `pip install -r requirements.txt`.
-3. Configure your database in `config.py`.
-4. Run the server: `uvicorn main:app --reload`.
-
-### Frontend Setup
-1. Navigate to `/frontend`.
-2. Install dependencies: `npm install`.
-3. Start the dev server: `npm run dev`.
+The project demonstrates best practices in backend architecture, including modular project structure, password hashing, token-based authentication, and API versioning.
 
 ---
 
-## Scalability Note
+## User Interface
 
-### 1. Database Optimization (Caching)
-Implementing **Redis** for caching frequently accessed data (like user profiles or the global todo list for admins) will significantly reduce database load and improve response times.
+### Signup Page with Owl Mascot
+![Signup Page](./images/signup_view.png)
 
-### 2. Microservices Architecture
-The current modular structure allows for easy separation. The **Authentication** and **Todo** services can be decoupled into independent microservices, each with its own database, communicating via an API Gateway or Message Queue (like RabbitMQ/Kafka) for high availability.
+### My Tasks Dashboard
+![Dashboard](./images/dashboard_view.png)
 
-### 3. Load Balancing
-By deploying multiple instances of the FastAPI server behind a **Nginx** or **AWS ALB** load balancer, we can distribute incoming traffic evenly, ensuring the system remains responsive under heavy load.
+---
 
-### 4. Background Processing
-Using **Celery** with Redis/RabbitMQ would move long-running tasks (like sending registration emails or generating reports) out of the request-response cycle, keeping the API fast and responsive.
+## Tech Stack
+
+**Backend Framework**
+- FastAPI
+
+**Database**
+- MySQL
+
+**ORM**
+- SQLAlchemy
+
+**Authentication**
+- JWT (JSON Web Tokens)
+
+**Password Security**
+- Passlib (bcrypt)
+
+**Server**
+- Uvicorn
+
+**API Documentation**
+- Swagger UI (auto-generated)
+
+---
+
+## Features
+
+- User registration and login
+- Secure password hashing using bcrypt
+- JWT authentication
+- Role-based access control (user/admin)
+- Todo CRUD operations
+- Modular and scalable project architecture
+- API versioning (`/api/v1`)
+- Automatic API documentation via Swagger
+
+---
+
+## Project Structure
+
+```
+VaultFlow
+│
+├── backend
+│   ├── core
+│   │   ├── hashing.py
+│   │   └── security.py
+│   │
+│   ├── dependencies
+│   │   └── auth_dependency.py
+│   │
+│   ├── models
+│   │   ├── user_model.py
+│   │   └── todo_model.py
+│   │
+│   ├── routes
+│   │   ├── auth_routes.py
+│   │   └── todo_routes.py
+│   │
+│   ├── schemas
+│   │   ├── user_schema.py
+│   │   └── todo_schema.py
+│   │
+│   ├── services
+│   │   ├── auth_service.py
+│   │   └── todo_service.py
+│   │
+│   ├── utils
+│   │   └── responses.py
+│   │
+│   ├── config.py
+│   ├── database.py
+│   ├── main.py
+│   └── requirements.txt
+│
+└── frontend
+```
+
+---
+
+## Database Schema
+
+### Users Table
+
+| Column     | Type              | Description           |
+| ---------- | ----------------- | --------------------- |
+| id         | INT               | Primary Key           |
+| email      | VARCHAR           | Unique email          |
+| password   | VARCHAR           | Hashed password       |
+| role       | ENUM(user, admin) | User role             |
+| is_active  | BOOLEAN           | Active status         |
+
+### Todos Table
+
+| Column      | Type      | Description                   |
+| ----------- | --------- | ----------------------------- |
+| id          | INT       | Primary Key                   |
+| title       | VARCHAR   | Todo title                    |
+| description | TEXT      | Todo description              |
+| completed   | BOOLEAN   | Status                        |
+| owner_id    | INT       | Foreign key referencing users |
+
+Relationship:
+```
+Users (1) ──────── (Many) Todos
+```
+
+---
+
+## Installation
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/abhixw/Vaultflow.git
+cd Vaultflow
+```
+
+---
+
+### 2. Create Virtual Environment
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+### 3. Install Dependencies
+```bash
+pip install -r backend/requirements.txt
+```
+
+---
+
+### 4. Configure Database
+Create MySQL database:
+```sql
+CREATE DATABASE secure_task_api;
+```
+Update the connection string inside `backend/config.py`.
+
+Example:
+`DATABASE_URL=mysql+pymysql://username:password@localhost/secure_task_api`
+
+---
+
+### 5. Run the Server
+```bash
+cd backend
+uvicorn main:app --reload
+```
+Server will start at: `http://127.0.0.1:8000`
+
+---
+
+## API Documentation
+
+FastAPI automatically generates API documentation.
+
+Swagger UI: `http://127.0.0.1:8000/docs`
+Alternative documentation: `http://127.0.0.1:8000/redoc`
+
+---
+
+## API Endpoints
+
+### Authentication
+**Register User**
+`POST /api/v1/auth/register`
+
+**Login User**
+`POST /api/v1/auth/login` (Returns JWT token)
+
+---
+
+### Todos CRUD
+**Create Todo**
+`POST /api/v1/todos`
+
+**Get User Todos**
+`GET /api/v1/todos`
+
+**Update Todo**
+`PUT /api/v1/todos/{id}`
+
+**Delete Todo**
+`DELETE /api/v1/todos/{id}`
+
+---
+
+## Authentication Flow
+1. User registers
+2. User logs in
+3. Server generates JWT token
+4. Client sends token in request header
+
+Example header:
+`Authorization: Bearer <JWT_TOKEN>`
+
+Protected routes require a valid token.
+
+---
+
+## Scalability Considerations
+The project follows a modular architecture separating routes, services, models, and dependencies. This structure allows easy expansion into microservices if required.
+
+Potential improvements for production:
+- Redis caching
+- Docker containerization
+- Load balancing with Nginx
+- Background tasks using Celery
+- Rate limiting
+- Centralized logging
+
+---
+
+## License
+This project is developed as part of a backend developer internship assignment.

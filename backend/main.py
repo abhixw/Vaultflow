@@ -2,6 +2,8 @@ from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from routes import auth_routes, todo_routes, admin_routes
 from database import Base, engine
+from models.user_model import User
+from models.todo_model import Todo
 from fastapi.responses import JSONResponse
 import traceback
 import sys

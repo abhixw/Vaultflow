@@ -13,6 +13,12 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("CLICKED");
+        console.log("API URL:", import.meta.env.VITE_API_URL);
+
+        await fetch("https://jsonplaceholder.typicode.com/posts");
+        console.log("fetch worked");
+
         setError('');
         setSuccess('');
 
